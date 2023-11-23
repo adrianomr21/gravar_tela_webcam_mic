@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -10,19 +11,14 @@
 
   <button onclick="toggleWebcam()">Ligar/Desligar Webcam</button>
   <button onclick="toggleWebcamPiP()">Ativar/Desativar PiP da Webcam</button>
-  <button onclick="pauseResumeWebcam()">Pausar/Continuar Webcam</button>
-  <div id="webcamContainer"></div>
-  <br/><br/>
   <button onclick="toggleMicrophone()">Ligar/Desligar Microfone</button>
-  <button onclick="pauseResumeMicrophone()">Pausar/Continuar Microfone</button>
-  <div id="audioMeter" style="height: 20px; background-color: lightgray; margin-top: 10px;"></div>
-  <br/><br/>
   <button onclick="startRecording()">Iniciar Gravação</button>
   <button onclick="stopRecording()">Parar Gravação</button>
   <button onclick="downloadVideo()">Download do Vídeo</button>
-  <video id="recorded" width="600px" height="400px" controls style="display: none;"></video>
- 
-  <br>
+  <video id="recorded" width="100%" controls style="display: none;"></video>
+  <div id="webcamContainer"></div>
+  <div id="audioMeter" style="height: 20px; background-color: lightgray; margin-top: 10px;"></div>
+  <p id="unsupportedInfo" style="color: red; display: none;">A gravação de tela não está disponível neste dispositivo.</p>
 
   <script>
     let mediaRecorder;
@@ -31,10 +27,13 @@
     let webcamVideo;
     let microphoneStream;
     let audioMeter;
-    let webcamPaused = false;
-    let microphonePaused = false;
 
     async function startRecording() {
+      if (!isScreenRecordingSupported()) {
+        document.getElementById('unsupportedInfo').style.display = 'block';
+        return;
+      }
+
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: { mediaSource: "screen" }
       });
@@ -84,22 +83,21 @@
 
     async function toggleWebcam() {
       if (!webcamStream) {
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        webcamVideo = document.createElement('video');
-        webcamVideo.srcObject = webcamStream;
-        webcamVideo.style.height = "200px";
-        webcamVideo.style.width = "200px";
-        webcamVideo.play();
-        document.getElementById('webcamContainer').appendChild(webcamVideo);
-        toggleWebcamPiP();
-      } else {
-        toggleWebcamPiP();
-        webcamVideo.pause();
-        webcamStream.getTracks().forEach(track => track.stop());
-        webcamStream = null;
-        webcamVideo = null;
-        document.getElementById('webcamContainer').innerHTML = ''; // Limpar o conteúdo
+        try {
+          webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          webcamVideo = document.createElement('video');
+          webcamVideo.srcObject = webcamStream;
+          webcamVideo.style.width = "100%";
+          webcamVideo.style.height = "auto";
+          webcamVideo.play();
+          document.getElementById('webcamContainer').appendChild(webcamVideo);
+        } catch (error) {
+          console.error('Erro ao obter permissão da webcam:', error);
+          return;
+        }
       }
+
+      toggleWebcamPiP();
     }
 
     async function toggleMicrophone() {
@@ -133,31 +131,6 @@
       }
     }
 
-    function pauseResumeWebcam() {
-      if (webcamVideo && webcamStream) {
-        if (webcamPaused) {
-          webcamVideo.play();
-        } else {
-          webcamVideo.pause();
-        }
-        webcamPaused = !webcamPaused;
-      }
-    }
-    
-    function pauseResumeMicrophone() {
-      if (microphoneStream) {
-        const tracks = microphoneStream.getAudioTracks();
-        tracks.forEach(track => {
-          if (microphonePaused) {
-            track.enabled = true;
-          } else {
-            track.enabled = false;
-          }
-        });
-        microphonePaused = !microphonePaused;
-      }
-    }
-
     function downloadVideo() {
       if (document.getElementById('recorded').src) {
         const a = document.createElement('a');
@@ -181,7 +154,7 @@
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
 
-        const meterWidth = 400;
+        const meterWidth = 100;
         audioMeter = document.getElementById('audioMeter');
 
         function draw() {
@@ -212,6 +185,10 @@
       if (audioMeter) {
         audioMeter.style.width = '0';
       }
+    }
+
+    function isScreenRecordingSupported() {
+      return navigator.mediaDevices.getDisplayMedia !== undefined;
     }
   </script>
 </body>
