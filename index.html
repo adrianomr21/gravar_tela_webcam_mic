@@ -35,7 +35,16 @@
     let microphonePaused = false;
 
     async function startRecording() {
-      const screenStream = await getDisplayMedia({ video: { mediaSource: "screen" } });
+      //const screenStream = await getDisplayMedia({ video: { mediaSource: "screen" } });
+
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { mediaSource: "screen" },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        }
+      });
 
       const combinedStream = new MediaStream();
 
