@@ -3,235 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gravação de Tela, Áudio e Webcam</title>
+  <title>Gravador de Tela e Webcam</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Gravação de Tela, Áudio e Webcam</h1>
+  <div class="container">
+    <h1>Gravador de Tela</h1>
 
-  <button onclick="toggleWebcam()">Ligar/Desligar Webcam</button>
-  <button onclick="toggleWebcamPiP()">Ativar/Desativar PiP da Webcam</button>
-  <button onclick="pauseResumeWebcam()">Pausar/Continuar Webcam</button>
-  <div id="webcamContainer"></div>
-  <br/><br/>
-  <button onclick="toggleMicrophone()">Ligar/Desligar Microfone</button>
-  <button onclick="pauseResumeMicrophone()">Pausar/Continuar Microfone</button>
-  <div id="audioMeter" style="height: 20px; background-color: lightgray; margin-top: 10px;"></div>
-  <br/><br/>
-  <button onclick="startRecording()">Iniciar Gravação</button>
-  <button onclick="stopRecording()">Parar Gravação</button>
-  <button onclick="downloadVideo()">Download do Vídeo</button>
-  <video id="recorded" width="600px" height="400px" controls style="display: none;"></video>
- 
-  <br>
+    <div id="webcamContainer"></div>
 
-  <script>
-    let mediaRecorder;
-    let recordedChunks = [];
-    let webcamStream;
-    let webcamVideo;
-    let microphoneStream;
-    let audioMeter;
-    let webcamPaused = false;
-    let microphonePaused = false;
+    <div id="audioMeter">
+      <div id="audioLevel"></div>
+    </div>
 
-    async function startRecording() {
-      //const screenStream = await getDisplayMedia({ video: { mediaSource: "screen" } });
+    <div class="controls">
+      <button onclick="toggleWebcam()">Ligar/Desligar Webcam</button>
+      <button onclick="toggleWebcamPiP()">Ativar/Desativar PiP</button>
+      <button onclick="toggleMicrophone()">Ligar/Desligar Microfone</button>
+      <button onclick="muteMicrophone()">Mutar/Desmutar Microfone</button>
+      <button onclick="startRecording()">Iniciar Gravação</button>
+      <button onclick="stopRecording()">Parar Gravação</button>
+      <button onclick="pauseResumeRecording()">Pausar/Retomar Gravação</button>
+      <button onclick="downloadVideo()">Download do Vídeo</button>
+    </div>
 
-      const screenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { mediaSource: "screen" },
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 44100
-        }
-      });
-
-      const combinedStream = new MediaStream();
-
-      // Adicione a transmissão de tela
-      const tracksScreen = screenStream.getTracks();
-      tracksScreen.forEach(track => combinedStream.addTrack(track));
-
-      // Adicione a transmissão do microfone, se estiver ligado
-      if (microphoneStream) {
-        const tracksMicrophone = microphoneStream.getTracks();
-        tracksMicrophone.forEach(track => combinedStream.addTrack(track));
-      }
-
-      mediaRecorder = new MediaRecorder(combinedStream);
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          recordedChunks.push(e.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
-        const recordedUrl = URL.createObjectURL(recordedBlob);
-        document.getElementById('recorded').style.display = "block";
-        document.getElementById('recorded').src = recordedUrl;
-      };
-
-      recordedChunks = [];
-      mediaRecorder.start();
-
-      // Iniciar o medidor de áudio
-      startAudioMeter();
-    }
-
-    function stopRecording() {
-      if (mediaRecorder) {
-        mediaRecorder.stop();
-
-        // Parar o medidor de áudio
-        stopAudioMeter();
-      }
-    }
-
-    async function toggleWebcam() {
-      if (!webcamStream) {
-        webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        webcamVideo = document.createElement('video');
-        webcamVideo.srcObject = webcamStream;
-        webcamVideo.style.height = "auto";
-        webcamVideo.style.width = "200px";
-        webcamVideo.play();
-        document.getElementById('webcamContainer').appendChild(webcamVideo);
-        toggleWebcamPiP();
-      } else {
-        toggleWebcamPiP();
-        webcamVideo.pause();
-        webcamStream.getTracks().forEach(track => track.stop());
-        webcamStream = null;
-        webcamVideo = null;
-        document.getElementById('webcamContainer').innerHTML = ''; // Limpar o conteúdo
-      }
-    }
-
-    async function toggleMicrophone() {
-      if (!microphoneStream) {
-        try {
-          microphoneStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          // Iniciar o medidor de áudio
-          startAudioMeter();
-        } catch (error) {
-          console.error('Erro ao obter permissão do microfone:', error);
-          return;
-        }
-      } else {
-        // Parar o medidor de áudio
-        stopAudioMeter();
-
-        microphoneStream.getTracks().forEach(track => track.stop());
-        microphoneStream = null;
-      }
-    }
-
-    async function toggleWebcamPiP() {
-      if (webcamStream && webcamVideo) {
-        // Aguardar até que os metadados do vídeo estejam carregados
-        await webcamVideo.play();
-        if (document.pictureInPictureElement) {
-          document.exitPictureInPicture();
-        } else {
-          await webcamVideo.requestPictureInPicture();
-        }
-      }
-    }
-
-    function pauseResumeWebcam() {
-      if (webcamVideo && webcamStream) {
-        if (webcamPaused) {
-          webcamVideo.play();
-        } else {
-          webcamVideo.pause();
-        }
-        webcamPaused = !webcamPaused;
-      }
-    }
     
-    function pauseResumeMicrophone() {
-      if (microphoneStream) {
-        const tracks = microphoneStream.getAudioTracks();
-        tracks.forEach(track => {
-          if (microphonePaused) {
-            track.enabled = true;
-          } else {
-            track.enabled = false;
-          }
-        });
-        microphonePaused = !microphonePaused;
-      }
-    }
 
-    function downloadVideo() {
-      if (document.getElementById('recorded').src) {
-        const a = document.createElement('a');
-        a.href = document.getElementById('recorded').src;
-        a.download = 'gravacao.webm';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-    }
+    
 
-    function startAudioMeter() {
-      if (microphoneStream) {
-        const audioContext = new AudioContext();
-        const analyser = audioContext.createAnalyser();
-        const microphone = audioContext.createMediaStreamSource(microphoneStream);
-        
-        microphone.connect(analyser);
+    <video id="recorded" controls style="display: none;"></video>
+  </div>
 
-        analyser.fftSize = 256;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        const meterWidth = 400;
-        audioMeter = document.getElementById('audioMeter');
-
-        function draw() {
-          analyser.getByteFrequencyData(dataArray);
-
-          const average = getAverageVolume(dataArray);
-          audioMeter.style.width = average / 128 * meterWidth + 'px';
-
-          requestAnimationFrame(draw);
-        }
-
-        draw();
-      }
-    }
-
-    function getAverageVolume(array) {
-      let values = 0;
-      const length = array.length;
-
-      for (let i = 0; i < length; i++) {
-        values += array[i];
-      }
-
-      return values / length;
-    }
-
-    function stopAudioMeter() {
-      if (audioMeter) {
-        audioMeter.style.width = '0';
-      }
-    }
-
-    async function getDisplayMedia(constraints) {
-      let stream = null;
-
-      try {
-        stream = await navigator.mediaDevices.getDisplayMedia(constraints);
-      } catch (err) {
-        console.error('Error: ' + err);
-      }
-
-      return stream;
-    }
-  </script>
+  <script src="recorder.js"></script>
 </body>
 </html>
