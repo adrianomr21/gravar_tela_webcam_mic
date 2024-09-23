@@ -1,78 +1,93 @@
 * {
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
-  
-  h1 {
-    margin-bottom: 20px;
-    color: #555;
-  }
-  
-  .controls {
-    width: 600px;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  button {
-    padding: 10px 15px;
-    background-color: #007BFF;
+    background-color: #120219;
     color: #fff;
-    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    text-align: center;
+    width: 500px;
+    
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #f0f0f0;
+}
+
+.video-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+video {
+    width: 100%;
+    max-width: 500px;
+    background-color: #333;
+    border-radius: 10px;
+}
+
+.audio-meter {
+    height: 20px;
+    width: 100%;
+    max-width: 500px;
+    background-color: #333;
     border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  #webcamContainer {
-    margin: 10px 0;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-    overflow: hidden;
-    width: 350px;
-    height: 350px;
-    background-color: #e6e6e6;
-  }
-  
-  #recorded {
-    margin-top: 20px;
-    width: 600px;
-    max-width: 100%;
-  }
-  
-  #audioMeter {
-    height: 10px;
-    background-color: #e0e0e0;
-    margin: 20px 0;
-    width: 50%;
+    margin: 10px auto 20px;
+    position: relative;
+}
+
+.meter-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #4caf50;
     border-radius: 5px;
 }
-  
-  #audioLevel {
-    height: 100%;
-    width: 0;
-    background-color: #28a745;
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.icon-button {
+    background-color: #120219;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 20px;
     border-radius: 5px;
-  }
-  
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.icon-button:hover {
+    background-color: #333;
+}
+
+#recordedVideoSection {
+    margin-top: 20px;
+}
+
+#recordedVideo {
+    width: 100%;
+    max-width: 500px;
+    background-color: #333;
+    border-radius: 10px;
+}
+
+.hidden {
+    display: none;
+}

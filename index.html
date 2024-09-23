@@ -1,40 +1,49 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gravador de Tela e Webcam</title>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravador de Tela e Webcam</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
-  <div class="container">
-    <h1>Gravador de Tela</h1>
-
-    <div id="webcamContainer"></div>
-
-    <div id="audioMeter">
-      <div id="audioLevel"></div>
+    <div class="container">
+        <h1>Gravador de Tela</h1>
+        <div class="video-section">
+            <video id="webcamVideo" autoplay muted></video>
+        </div>
+        <div class="audio-meter">
+            <div class="meter-bar"></div>
+        </div>
+        <div class="buttons">
+            <button id="toggleWebcam" class="icon-button" title="Ligar/Desligar Webcam">
+                <i class="fas fa-video"></i>
+            </button>
+            <button id="togglePip" class="icon-button hidden" title="Ligar/Desligar Mini Webcam">
+                <i class="fas fa-window-restore"></i>
+            </button>
+            <button id="toggleMic" class="icon-button" title="Ligar/Desligar Microfone">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button id="muteMic" class="icon-button hidden" title="Mute">
+                <i class="fas fa-volume-mute"></i>
+            </button>
+            <button id="startRecording" class="icon-button" title="Ligar/Desligar Gravação">
+                <i class="fas fa-circle"></i>
+            </button>
+            <button id="pauseRecording" class="icon-button hidden" title="Pausar Gravação">
+                <i class="fas fa-pause"></i>
+            </button>
+            <button id="downloadRecording" class="icon-button hidden" title="Baixar Gravação">
+                <i class="fas fa-download"></i>
+            </button>
+        </div>
+        <div id="recordedVideoSection">
+            <video id="recordedVideo" controls class="hidden"></video>
+        </div>
     </div>
-
-    <div class="controls">
-      <button onclick="toggleWebcam()">Ligar/Desligar Webcam</button>
-      <button onclick="toggleWebcamPiP()">Ativar/Desativar PiP</button>
-      <button onclick="toggleMicrophone()">Ligar/Desligar Microfone</button>
-      <button onclick="muteMicrophone()">Mutar/Desmutar Microfone</button>
-      <button onclick="startRecording()">Iniciar Gravação</button>
-      <button onclick="stopRecording()">Parar Gravação</button>
-      <button onclick="pauseResumeRecording()">Pausar/Retomar Gravação</button>
-      <button onclick="downloadVideo()">Download do Vídeo</button>
-    </div>
-
-    
-
-    
-
-    <video id="recorded" controls style="display: none;"></video>
-  </div>
-
-  <script src="recorder.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
