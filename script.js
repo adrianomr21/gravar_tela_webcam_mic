@@ -191,41 +191,13 @@ function handleStopRecording() {
 
     const statusElement = document.getElementById('status');
     const blob = new Blob(recordedChunks, { type: 'video/webm' });
-    const formData = new FormData();
-    formData.append('video', blob, 'gravacao.webm');
-
+    const url = URL.createObjectURL(blob);
+    recordedVideo.src = url;
+    recordedVideo.classList.remove('hidden');
+    downloadRecordingButton.classList.remove('hidden');
     statusElement.classList.remove('hidden');
-    statusElement.innerText = 'Enviando para o servidor e convertendo... Por favor, aguarde.';
-    downloadRecordingButton.classList.add('hidden');
-    recordedVideo.classList.add('hidden');
-
-
-    // Envia o vídeo para o novo backend
-    fetch('https://gravador-conversor.onrender.com/convert', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Erro no servidor: ${response.statusText}`);
-        }
-        return response.blob();
-    })
-    .then(mp4Blob => {
-        const url = URL.createObjectURL(mp4Blob);
-        recordedVideo.src = url;
-        recordedVideo.classList.remove('hidden');
-        downloadRecordingButton.classList.remove('hidden');
-        statusElement.innerText = 'Conversão concluída!';
-    })
-    .catch(error => {
-        console.error('Erro:', error);
-        statusElement.innerText = 'Falha na conversão. Verifique o console para mais detalhes.';
-    })
-    .finally(() => {
-        // Limpa os chunks após a gravação ser finalizada
-        recordedChunks = [];
-    });
+    statusElement.innerHTML = 'Download disponível em .webm.<br>Se precisar de MP4, use um <a href="https://cloudconvert.com/webm-to-mp4" target="_blank">conversor online</a>.';
+    recordedChunks = [];
 }
 
 //Download
@@ -233,7 +205,7 @@ downloadRecordingButton.addEventListener('click', () => {
     if (recordedVideo.src) {
       const a = document.createElement('a');
       a.href = recordedVideo.src;
-      a.download = 'gravacao.mp4';
+      a.download = 'gravacao.webm';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
