@@ -2,6 +2,7 @@ let mediaRecorder;
 let recordedChunks = [];
 let webcamStream;
 let audioStream;
+let recordingStream; // Stream da gravação principal
 let isRecording = false;
 let isPaused = false;
 
@@ -118,7 +119,7 @@ startRecordingButton.addEventListener('click', () => {
 async function startRecording() {
     try {
         // Capturar a tela e o áudio do sistema
-        const mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        recordingStream = await navigator.mediaDevices.getDisplayMedia({
             video: true,
             audio: true // Certifique-se de que o áudio está ativado
         });
@@ -126,17 +127,17 @@ async function startRecording() {
         // Verificar se o áudio do microfone está ativo
         if (audioStream) {
             const audioTracks = audioStream.getAudioTracks();
-            audioTracks.forEach(track => mediaStream.addTrack(track));
+            audioTracks.forEach(track => recordingStream.addTrack(track));
         }
 
         // Verificar se a webcam está ativa e adicionar ao stream
         if (webcamStream) {
             const webcamTrack = webcamStream.getVideoTracks()[0];
-            mediaStream.addTrack(webcamTrack);
+            recordingStream.addTrack(webcamTrack);
         }
 
-        mediaRecorder = new MediaRecorder(mediaStream, {
-            mimeType: 'video/webm' // Adicione esta linha
+        mediaRecorder = new MediaRecorder(recordingStream, {
+            mimeType: 'video/webm'
         });
         mediaRecorder.ondataavailable = handleDataAvailable;
         mediaRecorder.onstop = handleStopRecording;
@@ -152,9 +153,6 @@ async function startRecording() {
     }
 }
 
-
-
-
 // Função para pausar/resumir a gravação
 pauseRecordingButton.addEventListener('click', () => {
     if (!isPaused) {
@@ -169,6 +167,9 @@ pauseRecordingButton.addEventListener('click', () => {
 
 // Função para parar a gravação
 function stopRecording() {
+    if (recordingStream) {
+        recordingStream.getTracks().forEach(track => track.stop());
+    }
     mediaRecorder.stop();
     isRecording = false;
     startRecordingButton.innerHTML = '<i class="fas fa-circle"></i>';
@@ -183,19 +184,14 @@ function handleDataAvailable(event) {
 }
 
 // Função que lida com o fim da gravação e prepara o download
-// Função que lida com o fim da gravação e prepara o download
 function handleStopRecording() {
-    // Criar o blob a partir dos chunks gravados com o tipo correto
     const blob = new Blob(recordedChunks, { type: 'video/webm' });
     const url = URL.createObjectURL(blob);
 
-    // Exibir o vídeo gravado
     recordedVideo.src = url;
-    recordedVideo.classList.remove('hidden');  // Mostra o vídeo gravado
+    recordedVideo.classList.remove('hidden');
+    downloadRecordingButton.classList.remove('hidden');
 
-    downloadRecordingButton.classList.remove('hidden');  // Mostra o botão de download
-
-    // Limpar os chunks após a gravação ser finalizada
     recordedChunks = [];
 }
 
@@ -210,10 +206,3 @@ downloadRecordingButton.addEventListener('click', () => {
       document.body.removeChild(a);
     }
   });
-
-
-
-
-
-
-
