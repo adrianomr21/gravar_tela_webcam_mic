@@ -89,3 +89,35 @@ video {
 .hidden {
     display: none;
 }
+
+
+/* Estilos para os ícones */
+.fas {
+    margin-right: 5px;
+}
+
+/* Estilos para os botões de gravação */
+#startRecording {
+    color: #ff4d4d;
+}
+
+#pauseRecording {
+    color: #ffc107;
+}
+
+#downloadRecording {
+    color: #4caf50;
+}
+
+/* Estilos para os botões de webcam e microfone */
+#toggleWebcam, #toggleMic {
+    color: #3498db;
+}
+
+#muteMic {
+    color: #f39c12;
+}
+
+#togglePip {
+    color: #9b59b6;
+}
