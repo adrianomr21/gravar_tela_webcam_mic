@@ -185,22 +185,55 @@ function handleDataAvailable(event) {
 
 // Função que lida com o fim da gravação e prepara o download
 function handleStopRecording() {
+    if (recordedChunks.length === 0) {
+        return;
+    }
+
+    const statusElement = document.getElementById('status');
     const blob = new Blob(recordedChunks, { type: 'video/webm' });
-    const url = URL.createObjectURL(blob);
+    const formData = new FormData();
+    formData.append('video', blob, 'gravacao.webm');
 
-    recordedVideo.src = url;
-    recordedVideo.classList.remove('hidden');
-    downloadRecordingButton.classList.remove('hidden');
+    statusElement.classList.remove('hidden');
+    statusElement.innerText = 'Enviando para o servidor e convertendo... Por favor, aguarde.';
+    downloadRecordingButton.classList.add('hidden');
+    recordedVideo.classList.add('hidden');
 
-    recordedChunks = [];
+
+    // Envia o vídeo para o novo backend
+    fetch('https://gravador-conversor.onrender.com/convert', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro no servidor: ${response.statusText}`);
+        }
+        return response.blob();
+    })
+    .then(mp4Blob => {
+        const url = URL.createObjectURL(mp4Blob);
+        recordedVideo.src = url;
+        recordedVideo.classList.remove('hidden');
+        downloadRecordingButton.classList.remove('hidden');
+        statusElement.innerText = 'Conversão concluída!';
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        statusElement.innerText = 'Falha na conversão. Verifique o console para mais detalhes.';
+    })
+    .finally(() => {
+        // Limpa os chunks após a gravação ser finalizada
+        recordedChunks = [];
+    });
 }
 
 //Download
 downloadRecordingButton.addEventListener('click', () => {
-    if (document.getElementById('recordedVideo').src) {
+    if (recordedVideo.src) {
       const a = document.createElement('a');
-      a.href = document.getElementById('recordedVideo').src;
-      a.download = 'gravacao.webm';
+      a.href = recordedVideo.src;
+      a.download = 'gravacao.mp4';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
